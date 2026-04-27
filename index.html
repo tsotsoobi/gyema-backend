@@ -393,6 +393,9 @@
 </div>
 
 <script>
+// ── Config ─────────────────────────────────────────
+const BACKEND_URL = 'http://localhost:3001';
+
 // ── State ──────────────────────────────────────────
 const CITIES = ['Accra','Kumasi','Takoradi','Tamale','Sunyani','Ho','Koforidua','Cape Coast'];
 const FILTERS = ['all','accra','kumasi','takoradi','tamale'];
@@ -620,14 +623,28 @@ function confirmEscrow() {
       memo: `Gyema Escrow - ${job.id}`,
       metadata: { jobId: job.id, sender: job.sender }
     }, {
-      onReadyForServerApproval: (paymentId) => {
-        console.log('Payment ready for approval:', paymentId);
-        // In production: POST paymentId to your backend for approval
+      onReadyForServerApproval: async (paymentId) => {
+        try {
+          await fetch(`${BACKEND_URL}/payments/approve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, jobId: job.id, amount: job.pi, memo: `Gyema Escrow - ${job.id}` })
+          });
+        } catch (e) {
+          console.error('Approval request failed:', e);
+        }
         processEscrow(job);
       },
-      onReadyForServerCompletion: (paymentId, txid) => {
-        console.log('Payment complete:', paymentId, txid);
-        // In production: POST txid to your backend to complete
+      onReadyForServerCompletion: async (paymentId, txid) => {
+        try {
+          await fetch(`${BACKEND_URL}/payments/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, txid })
+          });
+        } catch (e) {
+          console.error('Completion request failed:', e);
+        }
       },
       onCancel: (paymentId) => {
         showToast('Payment cancelled', 'info');
