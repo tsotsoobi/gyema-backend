@@ -84,6 +84,29 @@ app.post('/payments/complete', async (req, res) => {
   }
 });
 
+// ── GET /jobs/seed ───────────────────────────────────────────────────────────
+// Call this manually once to populate the database with 3 sample jobs.
+// No-ops if jobs already exist.
+app.get('/jobs/seed', async (req, res) => {
+  await db.read();
+  if (db.data.jobs.length > 0) {
+    return res.json({ ok: true, message: 'Jobs already exist, skipping seed.', count: db.data.jobs.length });
+  }
+  const daysFromNow = (n) => {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.toISOString().split('T')[0];
+  };
+  db.data.jobs.push(
+    { id: 'GYM-00012A', title: 'Documents to Kumasi', desc: 'A4 envelope, lightweight documents', from: 'Accra',  to: 'Kumasi',   size: 'Small',  deadline: daysFromNow(7),  pi: 4.5,  status: 'open', sender: 'Kofi.A',  rating: 4.8 },
+    { id: 'GYM-00034B', title: 'Clothing Bundle',      desc: 'Medium bag of clothing items',       from: 'Accra',  to: 'Takoradi', size: 'Medium', deadline: daysFromNow(9),  pi: 7.0,  status: 'open', sender: 'Ama.B',   rating: 5.0 },
+    { id: 'GYM-00056C', title: 'Electronics — Tamale', desc: 'Small electronics device (insured)', from: 'Kumasi', to: 'Tamale',   size: 'Small',  deadline: daysFromNow(12), pi: 12.5, status: 'open', sender: 'Kweku.M', rating: 4.6 }
+  );
+  await db.write();
+  console.log('[seed] 3 sample jobs inserted');
+  res.json({ ok: true, message: 'Seeded 3 sample jobs.', jobs: db.data.jobs });
+});
+
 // ── GET /jobs ────────────────────────────────────────────────────────────────
 // Returns all open jobs. Injects a default steps array for any job that was
 // seeded without one, so the tracking view always has data to render.
