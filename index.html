@@ -405,14 +405,7 @@ let state = {
   balance: 0,
   role: 'traveller',
   filter: 'all',
-  jobs: [
-    { id:'GYM-00012A', title:'Documents to Kumasi', desc:'A4 envelope, lightweight documents', from:'Accra', to:'Kumasi', size:'Small', deadline:'2026-04-28', pi:4.5, status:'open', sender:'Kofi.A', rating:4.8,
-      steps:[{label:'Posted',done:true,active:false,time:'Apr 22, 9:00 AM'},{label:'Traveller Accepted',done:false,active:true,time:''},{label:'Picked Up',done:false,active:false,time:''},{label:'In Transit',done:false,active:false,time:''},{label:'Delivered & Confirmed',done:false,active:false,time:''}] },
-    { id:'GYM-00034B', title:'Clothing Bundle', desc:'Medium bag of clothing items', from:'Accra', to:'Takoradi', size:'Medium', deadline:'2026-04-29', pi:7.0, status:'open', sender:'Ama.B', rating:5.0,
-      steps:[{label:'Posted',done:true,active:false,time:'Apr 23, 7:30 AM'},{label:'Traveller Accepted',done:false,active:true,time:''},{label:'Picked Up',done:false,active:false,time:''},{label:'In Transit',done:false,active:false,time:''},{label:'Delivered & Confirmed',done:false,active:false,time:''}] },
-    { id:'GYM-00056C', title:'Electronics — Tamale', desc:'Small electronics device (insured)', from:'Kumasi', to:'Tamale', size:'Small', deadline:'2026-05-01', pi:12.5, status:'open', sender:'Kweku.M', rating:4.6,
-      steps:[{label:'Posted',done:true,active:false,time:'Apr 23, 6:00 AM'},{label:'Traveller Accepted',done:false,active:true,time:''},{label:'Picked Up',done:false,active:false,time:''},{label:'In Transit',done:false,active:false,time:''},{label:'Delivered & Confirmed',done:false,active:false,time:''}] },
-  ],
+  jobs: [],
   myTrips: [],
   selectedJob: null,
   escrowJob: null,
@@ -452,6 +445,20 @@ function afterLogin() {
   updateBadge();
   updateProfile();
   nav('home');
+  fetchJobs();
+}
+
+async function fetchJobs() {
+  document.getElementById('job-list').innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><p>Loading jobs…</p></div>';
+  try {
+    const res = await fetch(`${BACKEND_URL}/jobs`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    state.jobs = await res.json();
+    renderJobs();
+  } catch (e) {
+    console.error('fetchJobs failed:', e);
+    document.getElementById('job-list').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Could not load jobs.<br/>Check your connection.</p></div>';
+  }
 }
 
 function disconnect() {

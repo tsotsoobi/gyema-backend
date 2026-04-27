@@ -79,6 +79,25 @@ app.post('/payments/complete', async (req, res) => {
   }
 });
 
+// ── GET /jobs ────────────────────────────────────────────────────────────────
+// Returns all open jobs. Injects a default steps array for any job that was
+// seeded without one, so the tracking view always has data to render.
+const DEFAULT_STEPS = [
+  { label: 'Posted',                done: true,  active: false, time: '' },
+  { label: 'Traveller Accepted',    done: false, active: true,  time: '' },
+  { label: 'Picked Up',             done: false, active: false, time: '' },
+  { label: 'In Transit',            done: false, active: false, time: '' },
+  { label: 'Delivered & Confirmed', done: false, active: false, time: '' },
+];
+
+app.get('/jobs', async (req, res) => {
+  await db.read();
+  const open = db.data.jobs
+    .filter(j => j.status === 'open')
+    .map(j => ({ ...j, steps: j.steps || DEFAULT_STEPS }));
+  res.json(open);
+});
+
 // ── GET /payments/:paymentId ─────────────────────────────────────────────────
 // Convenience endpoint to inspect a stored payment's status.
 app.get('/payments/:paymentId', async (req, res) => {
