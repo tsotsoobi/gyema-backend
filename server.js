@@ -141,6 +141,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// ── GET /validation-key.txt ──────────────────────────────────────────────────
+app.get('/validation-key.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'validation-key.txt'));
+});
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 initDb().then(() => {
   app.listen(PORT, () => console.log(`Gyema backend → http://localhost:${PORT}`));
