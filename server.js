@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const axios   = require('axios');
+const path    = require('path');
 const { db, initDb, payments } = require('./db');
 
 const app = express();
@@ -133,6 +134,11 @@ app.get('/payments/:paymentId', async (req, res) => {
   const payment = payments.find(req.params.paymentId);
   if (!payment) return res.status(404).json({ error: 'Payment not found' });
   res.json(payment);
+});
+
+// ── GET / ────────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
