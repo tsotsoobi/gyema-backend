@@ -5,7 +5,12 @@ const axios   = require('axios');
 const { db, initDb, payments } = require('./db');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.options('*', cors());   // handle preflight for all routes
 app.use(express.json());
 
 const PI_API_KEY  = process.env.PI_API_KEY;
